@@ -174,8 +174,8 @@ graphdetection/
 
 ```bash
 # Set up your API key
-cp .env.example .env
-# Edit .env with your OPENAI_API_KEY
+cp .env.example ~/.env
+# Edit ~/.env with your OPENAI_API_KEY and Neo4j password
 
 # Launch everything: Neo4j + pipeline + dashboard
 docker compose up --build
