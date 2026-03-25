@@ -1,0 +1,81 @@
+version: "3.9"
+
+services:
+  # ── Neo4j Graph Database ──────────────────────────────────────────────────
+  neo4j:
+    image: neo4j:5
+    container_name: graphdetection-neo4j
+    ports:
+      - "7474:7474"   # Browser UI
+      - "7687:7687"   # Bolt protocol
+    environment:
+      NEO4J_AUTH: neo4j/changeme
+      NEO4J_PLUGINS: '["apoc"]'
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "changeme", "RETURN 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 40s
+
+  # ── Pipeline: Schema + Inject + Detect ────────────────────────────────────
+  pipeline:
+    build: .
+    container_name: graphdetection-pipeline
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    environment:
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: changeme
+    env_file:
+      - ${HOME}/.env
+    command: >
+      sh -c "
+        echo 'Waiting for Neo4j Bolt port...' &&
+        for i in 1 2 3 4 5 6 7 8 9 10; do
+          python -c \"from neo4j import GraphDatabase; d=GraphDatabase.driver('bolt://neo4j:7687',auth=('neo4j','changeme')); d.verify_connectivity(); d.close(); print('Connected!')\" 2>/dev/null && break;
+          echo \"  Attempt $$i failed, retrying in 5s...\";
+          sleep 5;
+        done &&
+        echo '=== Step 1: Schema Setup ===' &&
+        python config/schema_setup.py &&
+        echo '=== Step 2: Inject Synthetic Attacks ===' &&
+        python synthetic_injection/inject_attacks.py &&
+        echo '=== Step 3: MITRE ATT&CK Enrichment ===' &&
+        python data_ingestion/mitre_enrichment.py &&
+        echo '=== Step 4: Run Detections ===' &&
+        python detection/cypher_queries.py &&
+        echo '=== Step 5: Generate AI Report ===' &&
+        python rag_pipeline/generate_report.py --detection all --output data/processed/threat_report.md || true &&
+        echo '=== Pipeline Complete ==='
+      "
+    volumes:
+      - ./data:/app/data
+
+  # ── Streamlit Dashboard ───────────────────────────────────────────────────
+  dashboard:
+    build: .
+    container_name: graphdetection-dashboard
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    ports:
+      - "8501:8501"
+    environment:
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: changeme
+    env_file:
+      - ${HOME}/.env
+    command: streamlit run dashboard/dashboard.py --server.address 0.0.0.0
+    volumes:
+      - ./data:/app/data
+
+volumes:
+  neo4j_data:
+  neo4j_logs:

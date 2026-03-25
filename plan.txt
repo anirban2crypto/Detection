@@ -1,0 +1,180 @@
+Identity logs → Azure AD dataset
+Network traffic → CICIDS2017
+Threat intel → MITRE ATT&CK
+Enrichment → MalwareBazaar
+
+Graph-Specific Security Dataset (Hidden Gem)
+10. LANL Cyber Security Dataset (Los Alamos National Lab)
+
+🔥 This is PERFECT for your project
+
+Contains:
+Authentication logs
+Process activity
+Network flows
+
+👉 Why it’s amazing:
+
+Already used in graph-based research
+Supports:
+Lateral movement detection
+User behavior modeling
+
+3. Convert Dataset → Threat Graph
+
+Example transformation:
+
+Raw Log
+
+4. If You Want It Easier (Highly Recommended)
+ Generate Hybrid Dataset
+
+Mix:
+
+Real logs (structure)
+Synthetic attack scenarios
+Example attacks to inject:
+Impossible travel
+Credential stuffing
+Lateral movement
+Data exfiltration
+
+5. Bonus: Synthetic Generators Tools:
+Faker Python library
+Mimesis Python library
+
+Use them to:
+Create users/devices/IPs
+Simulate realistic behavior
+Inject attacks intentionally
+
+My Strong Recommendation
+
+If your goal is to impress recruiters / Microsoft-level roles, use:
+
+LANL dataset + MITRE ATT&CK + synthetic attack injection
+Why?
+
+Shows research depth
+Shows graph thinking
+Shows real detection capability
+
+--------------------------------------------------------------------
+README.md
+--------------------------------------------------------------------
+# 🛡️ Threat Detection via Graph + RAG + LLM
+
+This project demonstrates a full-stack security analytics pipeline using **graph-based modeling**, **synthetic attack injection**, and **Retrieval-Augmented Generation (RAG)** with **LLMs**. It detects and explains threats like lateral movement, credential stuffing, and data exfiltration using real and synthetic data.
+
+---
+
+## 🚀 Features
+
+- ✅ Graph schema for users, devices, IPs, malware, MITRE ATT&CK techniques, and campaigns
+- ✅ ETL pipeline for ingesting Azure AD, CICIDS2017, LANL, MalwareBazaar, and MITRE ATT&CK data
+- ✅ Synthetic attack injection (impossible travel, credential stuffing, lateral movement, exfiltration)
+- ✅ Cypher-based detection queries for graph anomalies
+- ✅ RAG pipeline: graph retrieval → LLM prompt → analyst-friendly report
+- ✅ Streamlit dashboard with query selection, graph visualization, and AI-generated analysis
+
+---
+
+## 🧱 Architecture Overview
+
+```mermaid
+graph TD
+    A[Raw Logs & Threat Feeds] --> B[Graph Database (Neo4j)]
+    B --> C[Retrieval Module (Cypher)]
+    C --> D[LLM Prompt Builder]
+    D --> E[LLM (GPT-4)]
+    E --> F[Analyst Report]
+    F --> G[Streamlit Dashboard]
+
+
+
+Source	Purpose
+Azure AD Logs	Identity authentication events
+CICIDS2017	Network traffic (benign + attack)
+LANL Dataset	Auth logs, process activity
+MalwareBazaar	Malware hashes and metadata
+MITRE ATT&CK	TTP mapping and enrichment
+
+🧪 Synthetic Attack Injection
+Simulated attack scenarios using Faker and Mimesis:
+
+Impossible Travel: Same user logs in from distant locations within minutes
+
+Credential Stuffing: Multiple failed logins from one IP
+
+Lateral Movement: Sequential device access
+
+Data Exfiltration: Large outbound traffic to suspicious IP
+
+🔍 Detection Queries (Cypher)
+// Impossible Travel
+MATCH (u:User)-[r:AUTHENTICATED_TO]->(d:Device)
+WITH u, collect(r.location) AS locations, collect(datetime(r.timestamp)) AS times
+WHERE size(apoc.coll.toSet(locations)) > 1 AND duration.inMinutes(min(times), max(times)) < 30
+RETURN u.user_id, locations, times;
+
+🧠 RAG Prompt Template
+[User Query]
+"Is this ad for SuperCheap iPhone 15 legitimate?"
+
+[Retrieved Graph Context]
+Entities: Users, Devices, IPs, Malware, Techniques, Campaigns
+Relationships: AUTHENTICATED_TO, COMMUNICATED_WITH, MATCHES_MALWARE, etc.
+
+[Task]
+1. Summarize suspicious activity
+2. Map to MITRE ATT&CK techniques
+3. Suggest attacker goals
+4. Recommend response actions
+
+📊 Dashboard Demo
+Built with Streamlit, includes:
+
+Sidebar query selection
+
+Center graph visualization (NetworkX or Neo4j Bloom)
+
+Right panel LLM-generated report
+
+Run with:
+streamlit run dashboard.py
+
+
+📁 Folder Structure
+├── data_ingestion/
+│   ├── azure_ad_etl.py
+│   ├── lanl_etl.py
+│   └── malwarebazaar_etl.py
+├── synthetic_injection/
+│   └── inject_attacks.py
+├── detection/
+│   └── cypher_queries.py
+├── rag_pipeline/
+│   └── generate_report.py
+├── dashboard/
+│   └── dashboard.py
+├── README.md
+
+
+📌 Requirements
+Python 3.9+
+
+Neo4j (local or cloud)
+
+OpenAI API key
+
+Streamlit
+
+Faker, Mimesis, NetworkX, Pandas
+pip install -r requirements.txt
+
+
+
+
+
+
+

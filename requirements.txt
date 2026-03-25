@@ -1,0 +1,32 @@
+# Graph database
+neo4j==5.26.0
+
+# LLM
+openai>=1.59.2
+
+# Dashboard
+streamlit==1.41.0
+
+# Data processing
+pandas==2.2.3
+numpy>=1.26.0,<2.0
+
+# Graph visualization
+networkx==3.4.2
+pyvis==0.3.2
+
+# Synthetic data generation
+faker==33.1.0
+mimesis==18.0.0
+
+# Environment & config
+python-dotenv==1.0.1
+
+# HTTP requests (for MalwareBazaar, MITRE ATT&CK APIs)
+requests==2.32.3
+
+# Logging
+loguru==0.7.3
+
+# Testing
+pytest==8.3.4
